@@ -4,12 +4,23 @@ Ejercicios prácticos con datos y scripts para practicar flujos de trabajo con a
 
 La idea de esta carpeta es tener casos pequeños, transparentes y fáciles de correr. Sirven para probar cómo un agente puede ayudar a inspeccionar datos, explicar modelos, escribir o revisar código, interpretar resultados y documentar un análisis.
 
-## Stata
+Son deliberadamente chicos: la gracia es que el usuario pueda abrir los datos, pedirle al agente que los inspeccione, generar un primer do-file, revisar resultados y discutir identificación sin perderse en una base grande.
 
-| Ejercicio | Qué contiene | Qué se puede practicar con IA |
+## Ejercicios incluidos
+
+| Ejercicio | Datos | Qué se puede practicar con IA |
 |---|---|---|
-| [stata/simulated-rd-did/](stata/simulated-rd-did/) | Datos simulados de ingresos con edad, tratamiento y variables para DiD/RD. Incluye `.dta`, `.xlsx` y el do-file generador. | Inspección de datos, regresiones simples, diferencia-en-diferencias, regresión discontinua, generación de tablas y explicación de identificación. |
-| [stata/card-krueger-did/](stata/card-krueger-did/) | Mini ejercicio de diferencias-en-diferencias inspirado en Card & Krueger, con empleo antes/después y grupo NJ/PA. | Replicar un estimador DiD manualmente, comparar con regresiones, pedir explicación econométrica y revisar robustez básica. |
+| [simul_data/](simul_data/) | Do-file `create_simul_data.do` + `Simul_60k.dta` / `.xlsx` | Cómo se genera la base simulada que usan los otros ejercicios. Útil para revisar el DGP, modificar parámetros o pedirle al agente que explique el proceso generador. |
+| [simulated-rd-did/](simulated-rd-did/) | `Simul_60k.dta`, `Simul_60k.xlsx` | Inspección de datos, regresiones simples, diferencia-en-diferencias, regresión discontinua, generación de tablas y explicación de identificación. |
+| [card-krueger-did/](card-krueger-did/) | `DinD_ex.dta` | Replicar un estimador DiD manualmente (inspirado en Card & Krueger), comparar con regresiones, pedir explicación econométrica y revisar robustez básica. |
+
+## Ideas de uso con IA
+
+- Pedir una auditoría inicial del dataset: variables, tamaños, missings, rangos sospechosos.
+- Pedir un do-file reproducible desde cero.
+- Comparar estimación manual versus regresión.
+- Convertir resultados en una explicación para clase, paper corto o nota técnica.
+- Pedir mejoras de estilo para código Stata existente.
 
 ## Prompts sugeridos
 
