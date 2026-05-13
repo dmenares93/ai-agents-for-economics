@@ -1,0 +1,23 @@
+-------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  /Users/ayunsete/IA_Agentes_Economia/resources/analisis_gdp.log
+  log type:  text
+ opened on:  12 May 2026, 22:25:17
+
+Contains data from gdp_latam.dta
+ Observations:           310                  
+    Variables:             4                  12 May 2026 21:27
+-------------------------------------------------------------------------------
+Variable      Storage   Display    Value
+    name         type    format    label      Variable label
+-------------------------------------------------------------------------------
+country         str9    %9s                   
+iso3            str3    %3s                   
+year            long    %12.0g                
+gdp             double  %10.0g                
+-------------------------------------------------------------------------------
+Sorted by: 
+
+    Variable |        Obs        Mean    Std. dev.       Min        Max
+-------------+---------------------------------------------------------
+         gdp |        310    3.56e+11    5.14e+11   4.03e+09   2.62e+12
