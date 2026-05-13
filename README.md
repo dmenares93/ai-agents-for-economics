@@ -1,6 +1,10 @@
 # AI Agents for Economics
 
-Notas y guías prácticas sobre el uso de **agentes de IA** en economía: cómo instalarlos, configurarlos y sacarles provecho en flujos reales de investigación, programación y análisis de datos con **Stata**.
+Este repositorio reúne material de **capacitaciones y cátedras** dictadas por el autor, junto con **pruebas e investigaciones** del equipo de data science del **Centro de Microdatos de la Universidad de Chile**, orientadas a encontrar el mejor flujo de trabajo para economistas en tareas de investigación, programación y análisis de datos —con foco en **Stata**.
+
+Parte del contenido nace de una serie de capacitaciones realizadas a integrantes y académicos del **Departamento de Economía de la Universidad de Chile**, donde el autor colabora. Se comparte abiertamente con la idea de que pueda ser útil a otros economistas, investigadores y estudiantes que quieran incorporar agentes de IA a su día a día.
+
+Son notas y guías prácticas sobre cómo instalar, configurar y sacarle provecho a los **agentes de IA** en flujos reales de trabajo.
 
 Este repo es una colección de **temas independientes**. No es un curso lineal: cada carpeta es un tema autocontenido que puedes leer en el orden que quieras.
 
@@ -13,6 +17,7 @@ Este repo es una colección de **temas independientes**. No es un curso lineal: 
 ## Otros directorios
 
 - [examples/](examples/) — Ejemplos de código y notebooks compartidos entre temas.
+- [exercises/](exercises/) — Ejercicios prácticos con datos y scripts para usar agentes de IA en análisis aplicado.
 
 ## A quién está dirigido
 
