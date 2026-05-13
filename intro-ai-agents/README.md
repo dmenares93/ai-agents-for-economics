@@ -218,7 +218,7 @@ Los agentes para desarrollo se distribuyen como **IDEs**, **forks de VS Code** o
 
 > *Recomendación final:* **Cursor + Claude Code.**
 
-La guía paso a paso de instalación está en **[ide-setup/](../ide-setup/)**.
+La guía paso a paso de instalación está en **[workflow/](../workflow/)**.
 
 ---
 
@@ -276,7 +276,7 @@ Este nivel no es indispensable para arrancar, pero es donde se nota la diferenci
 - Mantener versionado con Git y agregar un `.gitignore` para bases de datos y archivos pesados.
 - Crear un `README.md` por proyecto con la estructura de datos, variables clave y estrategia de identificación.
 
-La instalación paso a paso de cada componente está cubierta en **[ide-setup/](../ide-setup/)**.
+La instalación paso a paso de cada componente está cubierta en **[workflow/](../workflow/)**.
 
 ---
 
