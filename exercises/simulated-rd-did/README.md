@@ -23,12 +23,12 @@ Datos simulados de 60.000 observaciones para ejemplos básicos de econometría a
 ## Aplicaciones posibles con IA
 
 - Pedirle al agente que inspeccione la base y sugiera modelos simples.
-- Estimar una diferencia-en-diferencias con `reg y1 treatment treated DD`.
+- Estimar una diferencia-en-diferencias.
 - Explorar una regresión discontinua alrededor de `edad == 50`.
 - Generar tablas, gráficos y explicaciones de resultados para docencia.
 
 ## Prompt de partida
 
 ```text
-Mira `Simul_60k.dta`, describe las variables y escribe un do-file de Stata que estime un modelo de diferencia-en-diferencias y un ejemplo simple de regresión discontinua en edad 50.
+Mira `Simul_60k.dta`, describe las variables y escribe un do-file de Stata que estime un modelo de diferencia-en-diferencias.
 ```

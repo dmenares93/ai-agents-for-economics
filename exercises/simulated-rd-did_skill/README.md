@@ -37,8 +37,7 @@ Este ejercicio incluye una skill local para Claude/Codex en `.claude/skills/stat
 ## Aplicaciones posibles con IA
 
 - Pedirle al agente que inspeccione la base y sugiera modelos simples.
-- Estimar una diferencia-en-diferencias con `reg y1 treatment treated DD`.
-- Explorar una regresión discontinua alrededor de `edad == 50`.
+- Estimar una diferencia-en-diferencias.
 - Generar tablas, gráficos y explicaciones de resultados para docencia.
 
 ## Prompt de partida

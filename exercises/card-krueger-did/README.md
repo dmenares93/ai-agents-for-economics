@@ -28,12 +28,4 @@ Mini ejemplo de diferencias-en-diferencias inspirado en Card y Krueger (1994), u
 - Pedir una interpretación del coeficiente `njafter`.
 - Transformar el análisis en una tabla lista para una nota o clase.
 
-## Cómo correrlo
 
-Desde esta carpeta:
-
-```stata
-do DID_Krueger_replication.do
-```
-
-El do-file usa una ruta relativa a `DinD_ex.dta`.

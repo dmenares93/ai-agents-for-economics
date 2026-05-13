@@ -39,7 +39,7 @@ Berryman y Ziegler (2024) proponen visualizar el *prompt* como un documento téc
 
 1. **Contexto:** breve descripción del problema, del entorno o de los datos relevantes.
 2. **Instrucción principal:** lo que se quiere que el modelo produzca, en forma de acción concreta.
-3. **Criterios de salida:** formato esperado (código en Python, JSON, tabla, explicación textual).
+3. **Criterios de salida:** formato esperado (bloque de código, JSON, tabla, explicación textual).
 4. **Condiciones o restricciones:** por ejemplo, uso de librerías estándar, límites de tiempo o estilo de programación.
 
 Una estructura así no solo mejora la **calidad de la respuesta**, sino que también facilita su **reproducibilidad** e **integración** en flujos de trabajo de desarrollo.
@@ -48,7 +48,7 @@ Una estructura así no solo mejora la **calidad de la respuesta**, sino que tamb
 
 ## 4. Valor en programación
 
-En el contexto de Python y del desarrollo de software, estos fundamentos se convierten en una **herramienta estratégica**:
+En el contexto del desarrollo de software, estos fundamentos se convierten en una **herramienta estratégica**:
 
 - Permiten obtener **código más seguro y mantenible** desde el primer intento.
 - Facilitan la **automatización de tareas repetitivas** sin necesidad de reentrenar modelos.
@@ -66,7 +66,7 @@ Los modelos de lenguaje no son neutrales. Al entrenarse en enormes volúmenes de
 
 **Génesis técnica.** Los *Transformers* utilizan mecanismos de *auto-atención* con codificación posicional. Durante el entrenamiento, las cabeceras de atención tienden a asignar más atención a los tokens de los extremos, y la entropía cruzada premia la predicción eficiente del siguiente *token*. Como resultado, el modelo recuerda mejor el principio y el final de la secuencia, mientras la información intermedia queda atenuada.
 
-**Uso estratégico.** Colocar al principio las instrucciones de estilo (por ejemplo, "Sigue PEP8 y comenta cada función") y al final los datos clave o la pregunta central, para que el modelo los priorice.
+**Uso estratégico.** Colocar al principio las instrucciones de estilo (por ejemplo, "Sigue las convenciones del lenguaje y comenta cada función") y al final los datos clave o la pregunta central, para que el modelo los priorice.
 
 ### 5.2 Sesgo de anclaje
 
@@ -76,7 +76,7 @@ Los modelos de lenguaje no son neutrales. Al entrenarse en enormes volúmenes de
 
 **Uso estratégico.** Emplear un "ancla" deliberada:
 
-> *"Actúa como revisor senior de código Python y optimiza la eficiencia del siguiente script."*
+> *"Actúa como revisor senior de código y optimiza la eficiencia del siguiente script."*
 
 De esta manera se fija de inicio la perspectiva que el modelo mantendrá.
 
@@ -100,7 +100,7 @@ Así se induce al modelo a primero confirmar y luego, por indicación explícita
 
 **Uso estratégico.** Si se busca un estándar conocido:
 
-> *"Proporciona la forma más común de conectar Python con una base de datos PostgreSQL."*
+> *"Proporciona la forma más común de conectar una aplicación con una base de datos PostgreSQL."*
 
 Y si se quieren alternativas, se debe pedir explícitamente:
 
@@ -136,7 +136,7 @@ Esta práctica, propuesta por Berryman y Ziegler (2024), consiste en **conocer l
 
 ---
 
-## 6. Tipos de *prompt* para programación en Python
+## 6. Tipos de *prompt* para programación
 
 La calidad del código que generan los modelos de lenguaje depende fuertemente de la forma en que se formula el *prompt*. Los estudios recientes en ingeniería de *prompts* para programación identifican **patrones y técnicas** que mejoran la **precisión**, la **seguridad** y la **mantenibilidad** del código generado (Della Porta et al., 2025; Tony et al., 2024; Berryman y Ziegler, 2024).
 
@@ -148,7 +148,7 @@ La calidad del código que generan los modelos de lenguaje depende fuertemente d
 
 **Desventajas.** Puede generar código incompleto o inseguro si la tarea es compleja.
 
-**Ejemplo.** *"Escribe una función en Python que calcule la mediana de una lista de números."*
+**Ejemplo.** *"Escribe una función que calcule la mediana de una lista de números."*
 
 **Uso recomendado.** Tareas simples, utilidades de *scripting*, prototipos rápidos.
 
@@ -168,7 +168,7 @@ Entrada: [4,4,5] → Salida: 4
 Ahora: calcula la mediana de [10,2,3,8]
 ```
 
-**Aplicación.** Cuando se necesita un estilo de código consistente (por ejemplo, siguiendo PEP8) o un patrón de arquitectura repetible.
+**Aplicación.** Cuando se necesita un estilo de código consistente (por ejemplo, siguiendo las convenciones del lenguaje elegido) o un patrón de arquitectura repetible.
 
 ### 6.3 Chain-of-Thought (CoT)
 
@@ -176,7 +176,7 @@ Ahora: calcula la mediana de [10,2,3,8]
 
 **Fortalezas.** Mejora la lógica en algoritmos complejos; útil para problemas de optimización o estructuras de datos avanzadas.
 
-**Ejemplo.** *"Piensa paso a paso: primero describe el algoritmo para ordenar una lista enlazada y luego escribe el código en Python."*
+**Ejemplo.** *"Piensa paso a paso: primero describe el algoritmo para ordenar una lista enlazada y luego escribe el código correspondiente."*
 
 **Consejo.** Ideal para *debugging* y para comprender el razonamiento detrás del código generado.
 
@@ -184,7 +184,7 @@ Ahora: calcula la mediana de [10,2,3,8]
 
 **Descripción.** Se asigna un rol específico al modelo para influir en el estilo de la solución.
 
-**Ejemplo.** *"Actúa como un ingeniero senior en Python experto en seguridad. Genera una función que procese datos de usuario evitando inyecciones SQL."*
+**Ejemplo.** *"Actúa como un ingeniero senior experto en seguridad. Genera una función que procese datos de usuario evitando inyecciones SQL."*
 
 **Utilidad.** Asegura que el código cumpla con estándares de seguridad o con un nivel de calidad específico.
 
@@ -194,7 +194,7 @@ Orientadas a iterar y mejorar el resultado en ciclos sucesivos (Tony et al., 202
 
 **a) Recursive Criticism and Improvement (RCI).** El modelo revisa su propio código, identifica errores y los corrige en ciclos sucesivos.
 
-> *"Genera un script de Python que haga web scraping. Ahora revisa tu respuesta y señala posibles problemas de seguridad. Corrige el código según tu revisión."*
+> *"Genera un script que haga web scraping. Ahora revisa tu respuesta y señala posibles problemas de seguridad. Corrige el código según tu revisión."*
 
 **b) Self-Refine.** Similar a RCI, pero con pasos automáticos de autoevaluación y mejora continua.
 
@@ -204,7 +204,7 @@ Orientadas a iterar y mejorar el resultado en ciclos sucesivos (Tony et al., 202
 
 **Descripción.** El modelo recibe pistas progresivas que lo guían hacia la solución.
 
-**Uso en Python.** Cuando se busca que el modelo construya un algoritmo complejo en etapas, por ejemplo:
+**Uso típico.** Cuando se busca que el modelo construya un algoritmo complejo en etapas, por ejemplo:
 
 1. Diseñar la estructura de clases.
 2. Implementar los métodos.
@@ -224,28 +224,17 @@ Orientadas a iterar y mejorar el resultado en ciclos sucesivos (Tony et al., 202
 
 **Descripción.** Patrones donde el *prompt* exige un formato de salida específico (por ejemplo, solo código) o que el modelo detecte y explique errores en su propia respuesta.
 
-**Ejemplo.** *"Escribe únicamente el código Python, sin explicaciones. Luego genera un reporte de errores potenciales en el mismo script."*
+**Ejemplo.** *"Escribe únicamente el código, sin explicaciones. Luego genera un reporte de errores potenciales en el mismo script."*
 
 **Aplicación.** Útil para *pipelines* automáticos de verificación de código y para entornos de desarrollo continuo.
 
 ---
 
-## 7. Recomendaciones prácticas para Python
+## 7. Recomendaciones prácticas
 
 - **Combina técnicas:** por ejemplo, inicia con *few-shot* y agrega una fase RCI para reforzar la seguridad del código (Tony et al., 2024; Berryman y Ziegler, 2024).
-- **Especifica entorno y librerías:** indica versión de Python, dependencias o *frameworks*.
+- **Especifica entorno y librerías:** indica el lenguaje, su versión, dependencias o *frameworks* relevantes.
 - **Integra validación automática:** añade en el *prompt* la instrucción de crear *tests* unitarios para verificar la solución.
-
-```text
-# entorno
-python=3.11   pandas=2.2   pytest=8
-```
-
-```python
-# test rápido
-def test_suma():
-    assert (2 + 2) == 4
-```
 
 ---
 
