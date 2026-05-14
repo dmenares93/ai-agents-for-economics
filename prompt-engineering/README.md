@@ -2,13 +2,22 @@
 
 El *prompt engineering* es la disciplina que diseña y redacta de forma deliberada las instrucciones que se dan a un modelo de lenguaje (LLM) para guiarlo hacia una salida específica y de calidad. Aunque un LLM como ChatGPT se basa en técnicas de predicción de texto, su comportamiento puede moldearse significativamente si el *prompt* está bien concebido. Es, en esencia, la **interfaz de diseño entre la intención humana y la respuesta generada por la IA**:
 
+```mermaid
+flowchart LR
+    H([👤 Humano]):::human --> P([📝 Prompt]):::prompt
+    P --> L([🧠 LLM]):::llm
+    L --> S([✅ Salida]):::output
+    classDef human fill:#e8f1f8,stroke:#2c5777,stroke-width:2px,color:#1a3a52
+    classDef prompt fill:#fef5e7,stroke:#b7791f,stroke-width:2px,color:#744210
+    classDef llm fill:#f0e6f6,stroke:#6b46a3,stroke-width:2px,color:#3d2960
+    classDef output fill:#e6f4ea,stroke:#2f7d4f,stroke-width:2px,color:#1b4d2e
 ```
-Humano  →  Prompt  →  LLM  →  Salida
-```
+
+> 💡 **Idea clave** — Un buen *prompt* no es una pregunta improvisada: es un **diseño deliberado** de la conversación entre humano y modelo.
 
 ---
 
-## 1. Naturaleza y propósito
+## 🎯 1. Naturaleza y propósito
 
 Los LLM funcionan como motores de autocompletado extremadamente sofisticados: predicen el siguiente *token* en función del contexto dado. Por eso, la forma en que formulamos la entrada determina:
 
@@ -18,9 +27,11 @@ Los LLM funcionan como motores de autocompletado extremadamente sofisticados: pr
 
 El objetivo central del *prompt engineering* es **traducir un problema humano en un conjunto de instrucciones que el modelo pueda interpretar de forma predecible**, para que su salida sea útil y verificable.
 
+> 📌 **Nota** — Un LLM no "entiende" en el sentido humano: **completa secuencias probables**. El *prompt* sesga esa probabilidad hacia la respuesta que necesitamos.
+
 ---
 
-## 2. Principios clave
+## 🧭 2. Principios clave
 
 La práctica efectiva del *prompt engineering* se apoya en varios principios:
 
@@ -33,20 +44,28 @@ Estos principios hacen que el diseño de *prompts* sea un **proceso de ingenier�
 
 ---
 
-## 3. Estructura recomendada
+## 🧩 3. Estructura recomendada
 
 Berryman y Ziegler (2024) proponen visualizar el *prompt* como un documento técnico con partes definidas, adaptables a cada tarea:
 
-1. **Contexto:** breve descripción del problema, del entorno o de los datos relevantes.
-2. **Instrucción principal:** lo que se quiere que el modelo produzca, en forma de acción concreta.
-3. **Criterios de salida:** formato esperado (bloque de código, JSON, tabla, explicación textual).
-4. **Condiciones o restricciones:** por ejemplo, uso de librerías estándar, límites de tiempo o estilo de programación.
+```mermaid
+flowchart TB
+    A["🗂️ <b>1. Contexto</b><br/><i>Problema, entorno, datos</i>"]:::ctx
+    B["🎯 <b>2. Instrucción principal</b><br/><i>Acción concreta a producir</i>"]:::inst
+    C["📐 <b>3. Criterios de salida</b><br/><i>Formato esperado</i>"]:::out
+    D["🚧 <b>4. Restricciones</b><br/><i>Librerías, estilo, límites</i>"]:::rest
+    A --> B --> C --> D
+    classDef ctx fill:#e8f1f8,stroke:#2c5777,stroke-width:2px,color:#1a3a52
+    classDef inst fill:#fef5e7,stroke:#b7791f,stroke-width:2px,color:#744210
+    classDef out fill:#f0e6f6,stroke:#6b46a3,stroke-width:2px,color:#3d2960
+    classDef rest fill:#fde8e8,stroke:#a02e2e,stroke-width:2px,color:#5c1717
+```
 
-Una estructura así no solo mejora la **calidad de la respuesta**, sino que también facilita su **reproducibilidad** e **integración** en flujos de trabajo de desarrollo.
+> 💡 **Beneficio** — Una estructura así no solo mejora la **calidad de la respuesta**, sino que también facilita su **reproducibilidad** e **integración** en flujos de trabajo de desarrollo.
 
 ---
 
-## 4. Valor en programación
+## ⚙️ 4. Valor en programación
 
 En el contexto del desarrollo de software, estos fundamentos se convierten en una **herramienta estratégica**:
 
@@ -56,11 +75,13 @@ En el contexto del desarrollo de software, estos fundamentos se convierten en un
 
 ---
 
-## 5. Sesgos en los modelos de lenguaje y cómo aprovecharlos
+## 🧠 5. Sesgos en los modelos de lenguaje y cómo aprovecharlos
 
 Los modelos de lenguaje no son neutrales. Al entrenarse en enormes volúmenes de texto para predecir el siguiente *token* con máxima probabilidad, desarrollan patrones de respuesta que llamamos **sesgos**. Lejos de ser solo un problema, estos sesgos pueden **aprovecharse de forma consciente en el *prompt engineering*** (Berryman y Ziegler, 2024). Comprender por qué surgen, a nivel matemático, permite diseñar *prompts* que los utilicen en nuestro favor.
 
-### 5.1 Efecto de posición: *primacy* y *recency*
+> ⚠️ **Atención** — Los sesgos **no se eliminan**: se conocen, se aprovechan y se validan externamente. Ignorarlos lleva a confiar ciegamente en salidas que parecen correctas pero no lo son.
+
+### ↔️ 5.1 Efecto de posición: *primacy* y *recency*
 
 **Qué es.** La información situada al inicio del *prompt* influye más en el formato y el tono, mientras que lo del final impacta más en el contenido sustantivo. La parte central suele perder fuerza, fenómeno conocido como "*Valley of Meh*".
 
@@ -68,7 +89,7 @@ Los modelos de lenguaje no son neutrales. Al entrenarse en enormes volúmenes de
 
 **Uso estratégico.** Colocar al principio las instrucciones de estilo (por ejemplo, "Sigue las convenciones del lenguaje y comenta cada función") y al final los datos clave o la pregunta central, para que el modelo los priorice.
 
-### 5.2 Sesgo de anclaje
+### ⚓ 5.2 Sesgo de anclaje
 
 **Qué es.** Tendencia a dar peso desproporcionado a la primera pista o contexto recibido.
 
@@ -80,7 +101,7 @@ Los modelos de lenguaje no son neutrales. Al entrenarse en enormes volúmenes de
 
 De esta manera se fija de inicio la perspectiva que el modelo mantendrá.
 
-### 5.3 Sesgo de confirmación
+### ✔️ 5.3 Sesgo de confirmación
 
 **Qué es.** El modelo tiende a reforzar la hipótesis implícita en la pregunta, en lugar de cuestionarla.
 
@@ -92,7 +113,7 @@ De esta manera se fija de inicio la perspectiva que el modelo mantendrá.
 
 Así se induce al modelo a primero confirmar y luego, por indicación explícita, buscar contraargumentos.
 
-### 5.4 Sesgo de disponibilidad o popularidad
+### 📈 5.4 Sesgo de disponibilidad o popularidad
 
 **Qué es.** Favorece soluciones o ejemplos frecuentes en los datos de entrenamiento.
 
@@ -106,7 +127,7 @@ Y si se quieren alternativas, se debe pedir explícitamente:
 
 > *"Propón una opción menos frecuente o más innovadora."*
 
-### 5.5 Efecto halo
+### ✨ 5.5 Efecto halo
 
 **Qué es.** Tras una primera respuesta convincente, los usuarios tienden a confiar ciegamente en las siguientes.
 
@@ -118,29 +139,50 @@ Y si se quieren alternativas, se debe pedir explícitamente:
 
 Se fuerza al modelo a cuestionar su propia salida y se evita caer en confianza ciega.
 
-### *Bias-aware prompting*
+### 🔄 *Bias-aware prompting*
 
 Esta práctica, propuesta por Berryman y Ziegler (2024), consiste en **conocer los sesgos y explotarlos conscientemente** para guiar el comportamiento del modelo. No se trata de eliminarlos, sino de **usarlos como palancas de diseño**, siempre validando externamente mediante **pruebas unitarias**, **revisión de código** y **documentación oficial**. El ciclo es:
 
-1. **Conocer** los sesgos → 2. **Aprovechar** los sesgos → 3. **Validar** resultados → (volver a 1).
+```mermaid
+flowchart LR
+    A([🔍 Conocer<br/>los sesgos]):::s1 --> B([🎛️ Aprovechar<br/>los sesgos]):::s2
+    B --> C([✅ Validar<br/>resultados]):::s3
+    C -->|iterar| A
+    classDef s1 fill:#e8f1f8,stroke:#2c5777,stroke-width:2px,color:#1a3a52
+    classDef s2 fill:#fef5e7,stroke:#b7791f,stroke-width:2px,color:#744210
+    classDef s3 fill:#e6f4ea,stroke:#2f7d4f,stroke-width:2px,color:#1b4d2e
+```
 
-### Resumen de sesgos
+### 📋 Resumen de sesgos
 
-| Sesgo | Idea clave |
-|---|---|
-| Efecto de posición | El inicio y el final pesan más que el medio. |
-| Anclaje | La primera instrucción fija el tono del razonamiento. |
-| Confirmación | El modelo refuerza hipótesis en lugar de cuestionarlas. |
-| Disponibilidad | Prefiere ejemplos comunes en los datos. |
-| Halo | Respuestas iniciales convincentes generan confianza ciega. |
+| | Sesgo | Idea clave |
+|:-:|---|---|
+| ↔️ | **Efecto de posición** | El inicio y el final pesan más que el medio. |
+| ⚓ | **Anclaje** | La primera instrucción fija el tono del razonamiento. |
+| ✔️ | **Confirmación** | El modelo refuerza hipótesis en lugar de cuestionarlas. |
+| 📈 | **Disponibilidad** | Prefiere ejemplos comunes en los datos. |
+| ✨ | **Halo** | Respuestas iniciales convincentes generan confianza ciega. |
 
 ---
 
-## 6. Tipos de *prompt* para programación
+## 🛠️ 6. Tipos de *prompt* para programación
 
 La calidad del código que generan los modelos de lenguaje depende fuertemente de la forma en que se formula el *prompt*. Los estudios recientes en ingeniería de *prompts* para programación identifican **patrones y técnicas** que mejoran la **precisión**, la **seguridad** y la **mantenibilidad** del código generado (Della Porta et al., 2025; Tony et al., 2024; Berryman y Ziegler, 2024).
 
-### 6.1 Zero-Shot Prompting
+### 📋 Mapa rápido de técnicas
+
+| | Técnica | Cuándo usarla |
+|:-:|---|---|
+| ⚡ | **Zero-Shot** | Tareas simples, *scripting*, prototipos rápidos. |
+| 🎯 | **One-Shot / Few-Shot** | Cuando importa el formato o estilo consistente. |
+| 🧩 | **Chain-of-Thought** | Algoritmos complejos, *debugging*, optimización. |
+| 🎭 | **Persona-based** | Para fijar estándares (seguridad, *senior review*). |
+| 🔁 | **Refinement (RCI / Self-Refine)** | Mejorar calidad y seguridad iterando. |
+| 🪜 | **Progressive Hint** | Construir algo complejo en etapas guiadas. |
+| 🧱 | **Least-to-Most** | Software modular, *testable*, de abajo hacia arriba. |
+| 📤 | **Output Customization** | *Pipelines* automáticos, formato estricto. |
+
+### ⚡ 6.1 Zero-Shot Prompting
 
 **Descripción.** El modelo recibe solo la instrucción, sin ejemplos previos.
 
@@ -152,7 +194,7 @@ La calidad del código que generan los modelos de lenguaje depende fuertemente d
 
 **Uso recomendado.** Tareas simples, utilidades de *scripting*, prototipos rápidos.
 
-### 6.2 One-Shot y Few-Shot Prompting
+### 🎯 6.2 One-Shot y Few-Shot Prompting
 
 **Descripción.** Se incluyen uno o varios ejemplos de entrada–salida antes de la solicitud principal.
 
@@ -170,7 +212,7 @@ Ahora: calcula la mediana de [10,2,3,8]
 
 **Aplicación.** Cuando se necesita un estilo de código consistente (por ejemplo, siguiendo las convenciones del lenguaje elegido) o un patrón de arquitectura repetible.
 
-### 6.3 Chain-of-Thought (CoT)
+### 🧩 6.3 Chain-of-Thought (CoT)
 
 **Descripción.** Se indica explícitamente que el modelo razone paso a paso antes de dar el resultado.
 
@@ -180,7 +222,7 @@ Ahora: calcula la mediana de [10,2,3,8]
 
 **Consejo.** Ideal para *debugging* y para comprender el razonamiento detrás del código generado.
 
-### 6.4 Persona-based Prompting
+### 🎭 6.4 Persona-based Prompting
 
 **Descripción.** Se asigna un rol específico al modelo para influir en el estilo de la solución.
 
@@ -188,7 +230,7 @@ Ahora: calcula la mediana de [10,2,3,8]
 
 **Utilidad.** Asegura que el código cumpla con estándares de seguridad o con un nivel de calidad específico.
 
-### 6.5 Refinement-Based Techniques
+### 🔁 6.5 Refinement-Based Techniques
 
 Orientadas a iterar y mejorar el resultado en ciclos sucesivos (Tony et al., 2024; Berryman y Ziegler, 2024).
 
@@ -200,7 +242,7 @@ Orientadas a iterar y mejorar el resultado en ciclos sucesivos (Tony et al., 202
 
 **Beneficio.** Refuerza la calidad y seguridad del código sin intervención constante del usuario.
 
-### 6.6 Progressive Hint Prompting
+### 🪜 6.6 Progressive Hint Prompting
 
 **Descripción.** El modelo recibe pistas progresivas que lo guían hacia la solución.
 
@@ -212,7 +254,7 @@ Orientadas a iterar y mejorar el resultado en ciclos sucesivos (Tony et al., 202
 
 **Ventaja.** Favorece el aprendizaje guiado y la generación de código modular.
 
-### 6.7 Least-to-Most Prompting
+### 🧱 6.7 Least-to-Most Prompting
 
 **Descripción.** Se comienza resolviendo subtareas simples y se avanza hacia la tarea más compleja.
 
@@ -220,7 +262,7 @@ Orientadas a iterar y mejorar el resultado en ciclos sucesivos (Tony et al., 202
 
 **Beneficio.** Facilita el desarrollo de software modular y *testable*, y reduce la probabilidad de errores en etapas posteriores.
 
-### 6.8 Output Customization / Error Identification
+### 📤 6.8 Output Customization / Error Identification
 
 **Descripción.** Patrones donde el *prompt* exige un formato de salida específico (por ejemplo, solo código) o que el modelo detecte y explique errores en su propia respuesta.
 
@@ -230,15 +272,17 @@ Orientadas a iterar y mejorar el resultado en ciclos sucesivos (Tony et al., 202
 
 ---
 
-## 7. Recomendaciones prácticas
+## ✅ 7. Recomendaciones prácticas
 
-- **Combina técnicas:** por ejemplo, inicia con *few-shot* y agrega una fase RCI para reforzar la seguridad del código (Tony et al., 2024; Berryman y Ziegler, 2024).
-- **Especifica entorno y librerías:** indica el lenguaje, su versión, dependencias o *frameworks* relevantes.
-- **Integra validación automática:** añade en el *prompt* la instrucción de crear *tests* unitarios para verificar la solución.
+> 💡 **Regla de oro** — Un *prompt* efectivo combina **estructura**, **contexto** y **validación**. Si falta uno, la calidad baja.
+
+- 🔀 **Combina técnicas:** por ejemplo, inicia con *few-shot* y agrega una fase RCI para reforzar la seguridad del código (Tony et al., 2024; Berryman y Ziegler, 2024).
+- 📦 **Especifica entorno y librerías:** indica el lenguaje, su versión, dependencias o *frameworks* relevantes.
+- 🧪 **Integra validación automática:** añade en el *prompt* la instrucción de crear *tests* unitarios para verificar la solución.
 
 ---
 
-## Referencias
+## 📚 Referencias
 
 - Berryman, J., & Ziegler, A. (2024). *Prompt Engineering for LLMs: The Art and Science of Building Large Language Model–Based Applications*. O'Reilly Media.
 - Della Porta, A., Lambiase, S., & Palomba, F. (2025). *Do Prompt Patterns Affect Code Quality? A First Empirical Assessment of ChatGPT-Generated Code*. arXiv:2504.13656v1.
