@@ -29,3 +29,4 @@ summarize price mpg weight
 regress price mpg weight foreign
 
 display "Listo: ejecución terminada OK."
+

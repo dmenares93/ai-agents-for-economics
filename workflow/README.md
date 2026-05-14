@@ -11,6 +11,7 @@ Vamos a:
 5. **Localizar el ejecutable de Stata** y entender sus ediciones, para poder pasarle la ruta a los agentes y evitar que la busquen en cada conversación.
 6. **Instalar `nbstata`**, el kernel de Jupyter que vincula Stata al IDE y permite ejecutar código Stata con estado persistente.
 7. **Configurar la Interactive Window** para ejecutar `.do` files línea a línea con `Shift+Enter`, manteniendo variables y datasets en memoria entre ejecuciones — como en un entorno interactivo de Stata.
+8. **Tips prácticos** para sesiones largas con agentes: evitar que el sistema se suspenda mientras el agente trabaja, y otros consejos del día a día.
 
 La guía está pensada para leerse de corrido, en este orden:
 
@@ -21,6 +22,7 @@ La guía está pensada para leerse de corrido, en este orden:
 5. [Localizar el ejecutable de Stata](#5-localizar-el-ejecutable-de-stata)
 6. [Instalar `nbstata` (kernel de Stata para Jupyter)](#6-instalar-nbstata-kernel-de-stata-para-jupyter)
 7. [Configurar la Interactive Window](#7-configurar-la-interactive-window)
+8. [Tips prácticos para trabajar con agentes](#8-tips-prácticos-para-trabajar-con-agentes)
 
 
 Recursos:
@@ -322,129 +324,123 @@ Abre los archivos de ejemplo en [resources/](resources/):
 
 > Si un archivo no abre con la vista esperada: click derecho > **Reopen Editor With...** y elige el visor correcto.
 
+### Extensiones de Python y Jupyter
+
+Aunque este flujo está pensado principalmente para trabajar con **Stata**, en la práctica muchas tareas que ejecuta la IA terminan apoyándose en **Python**: limpieza y conversión de datos, scripts auxiliares, generación de gráficos, manipulación de archivos, pruebas rápidas en notebooks, *web scraping*, etc. Tener las integraciones de Python listas en el IDE hace que cuando el agente proponga o ejecute código `.py` o `.ipynb`, todo —intérprete, autocompletado, errores, ejecución de celdas— funcione sin fricción.
+
+| Extensión | Para qué sirve | Cómo se instala |
+|---|---|---|
+| **Python** (`ms-python.python`) | Base de soporte Python: selección de intérprete/venv, debugger, integración con linters y formatters | Marketplace (UI) |
+| **Pylance** (`ms-python.vscode-pylance`) | Autocompletado serio, *type checking*, "go to definition" y diagnóstico de errores antes de ejecutar | Marketplace (UI) |
+| **Jupyter** (`ms-toolsai.jupyter`) | Abrir y ejecutar `.ipynb` dentro del editor, ver outputs inline, explorador de variables | Marketplace (UI) |
+
+**Pasos:**
+
+1. Abre el panel **Extensions** (`Cmd+Shift+X` / `Ctrl+Shift+X`).
+2. Busca cada una por su ID (`ms-python.python`, `ms-python.vscode-pylance`, `ms-toolsai.jupyter`) y click en **Install**.
+3. Recarga la ventana si lo pide.
+
+> Pylance suele instalarse automáticamente como dependencia de la extensión Python, pero conviene verificar que esté activa.
+
 ---
 
 ## 5. Localizar el ejecutable de Stata
 
-Es **muy recomendable** identificar exactamente **dónde está instalado el ejecutable de Stata** en tu máquina y dejarlo documentado en el proyecto.
+Antes de seguir, vale la pena ubicar **dónde está instalado el ejecutable de Stata** en tu máquina y dejarlo documentado en el proyecto.
 
-### Por qué importa
+### Por qué importa: estás ordenándole a la IA cómo correr Stata
 
-Los agentes de IA (Claude Code, Codex, etc.) necesitan saber la ruta del ejecutable para poder **correr `.do` files directamente desde el terminal** sin abrir la app gráfica. Si no se la indicas, el agente la va a buscar cada vez que abras una nueva conversación — explorando `/Applications`, `/usr/local`, `which stata`, etc. — gastando contexto y tiempo. Documentarla una sola vez ahorra ese ciclo en cada sesión.
+Cuando le pides a un agente "corre este `.do` y resúmeme la regresión", lo que pasa por debajo es esto: el agente abre el terminal, **invoca el binario CLI de Stata** (no la app gráfica) con `stata-mp -b do archivo.do`, espera a que termine, **lee el `.log` resultante** y te reporta el output. Es importante entender ese flujo, porque varias decisiones del día a día dependen de él:
 
-### Rutas típicas de instalación
+- El agente **no abre la GUI de Stata**. Trabaja siempre contra el ejecutable de terminal, así que necesita su ruta exacta.
+- Si no se la indicas, el agente la va a redescubrir en cada conversación nueva — explorando `/Applications`, `/usr/local`, corriendo `which stata`, etc. — gastando contexto y tiempo.
+- Documentar la ruta una sola vez (en `CLAUDE.md`/`AGENTS.md`) le permite al agente saltar directo a ejecutar, y a ti tener claro qué edición está usando (MP vs SE vs BE) y, por lo tanto, qué rendimiento esperar.
 
-**macOS** — Stata se instala como bundle `.app` dentro de `/Applications/`:
+### Ediciones de Stata (MP, SE, BE)
 
-| Variante | Ruta típica |
-|---|---|
-| Stata clásico | `/Applications/Stata/StataMP.app` · `/Applications/Stata/StataSE.app` · `/Applications/Stata/StataBE.app` |
-| StataNow (subscripción) | `/Applications/StataNow/StataMP.app` (o `StataSE.app` / `StataBE.app`) |
+Stata se distribuye en **tres ediciones**, que cambian cuántos núcleos y cuánta memoria puede usar. Es útil saber cuál tienes, porque define el rendimiento y aparece en el nombre del binario CLI:
 
-**Linux** — normalmente bajo `/usr/local/`:
-
-| Variante | Ruta típica |
-|---|---|
-| Stata 17 | `/usr/local/stata17/` |
-| Stata 18 | `/usr/local/stata18/` |
-| StataNow | `/usr/local/statanow/` |
-
-### Qué suele haber adentro
-
-En macOS, dentro de `/Applications/StataNow/` (o `/Applications/Stata/`) verás algo así:
-
-```
-StataMP.app/        ← la aplicación (GUI + ejecutables CLI dentro)
-ado/                ← paquetes y comandos ado oficiales
-auto.dta            ← dataset de ejemplo
-docs/               ← documentación PDF
-stata.lic           ← archivo de licencia
-utilities/          ← utilidades auxiliares
-```
-
-Los **ejecutables reales** están dentro del bundle, en:
-
-```
-/Applications/StataNow/StataMP.app/Contents/MacOS/
-├── StataMP              ← ejecutable de la GUI (la app gráfica)
-├── stata-mp             ← ejecutable de terminal (CLI)
-└── libstata-mp.dylib    ← librería compartida
-```
-
-En Linux es más directo: los ejecutables viven sueltos en `/usr/local/stata18/` (o la versión que tengas), por ejemplo `xstata-mp` (GUI) y `stata-mp` (CLI).
-
-### Ediciones y por qué hay siempre dos binarios
-
-Para cada edición de Stata se instalan **dos ejecutables**: uno con interfaz gráfica (UX) y uno de terminal (CLI).
-
-| Binario | Tipo | Uso |
+| Edición | Binario CLI | Qué significa |
 |---|---|---|
-| `StataMP` / `xstata-mp` | GUI | App gráfica — Do-file Editor, ventanas, menús |
-| `stata-mp` | CLI | Terminal — lo que usan los agentes de IA y los scripts |
+| **MP** (Multi-Processor) | `stata-mp` | Paraleliza cálculos en varios núcleos del CPU. La más rápida — la diferencia frente a SE/BE es enorme en regresiones, bootstrap, simulaciones. |
+| **SE** (Standard Edition) | `stata-se` | Más capacidad por dataset que BE, pero *single-threaded*. |
+| **BE** (Basic Edition) | `stata` | Versión básica, un solo core, límite menor de variables y observaciones. |
 
-A su vez, Stata se distribuye en **tres ediciones**, que cambian cuántos núcleos y cuánta memoria puede usar:
+> Si tienes **MP** disponible, úsala. `-mp` significa *Multi-Processor* (no "multi parallel" — el término oficial de StataCorp es Multi-Processor).
 
-| Edición | Sufijo del binario | Qué significa |
-|---|---|---|
-| **BE** (Basic Edition) | `-be` (o `stata` a secas en algunas versiones) | Versión básica, un solo core. |
-| **SE** (Standard Edition) | `-se` | Más capacidad por dataset que BE, pero sigue siendo single-threaded. |
-| **MP** (Multi-Processor) | `-mp` | **Multi-Processor**: paraleliza cálculos en varios núcleos del CPU. Es la más rápida y potente, y la única que aprovecha tu hardware moderno. |
+Además, para cada edición se instala un binario **GUI** (la app gráfica con menús y Do-file Editor — `StataMP` / `xstata-mp`) y un binario **CLI** (terminal, sin interfaz — `stata-mp`). **El que usan los agentes es siempre el CLI.**
 
-> Si tienes MP disponible, **úsala**: `-mp` significa *Multi-Processor* (no "multi parallel" — el término oficial de StataCorp es Multi-Processor). En máquinas con varios cores la diferencia de rendimiento frente a SE/BE es enorme en regresiones, bootstrap, simulaciones, etc.
+### Rutas del ejecutable en las últimas versiones
 
-Para ver qué ediciones tienes instaladas, basta con listar la carpeta:
+Estas son las rutas típicas para **Stata 18, 19 y StataNow** (las versiones que verás en la mayoría de máquinas hoy). Cambia `StataMP` por `StataSE` / `StataBE` si tu edición es otra.
 
-```bash
-# macOS
-ls /Applications/StataNow/         # o /Applications/Stata/
+**macOS** — Stata se instala como bundle `.app` en `/Applications/`. El ejecutable CLI vive **dentro del bundle**:
 
-# Linux
-ls /usr/local/stata18/
+```
+/Applications/Stata/StataMP.app/Contents/MacOS/stata-mp           # Stata clásico (18, 19)
+/Applications/StataNow/StataMP.app/Contents/MacOS/stata-mp         # StataNow
 ```
 
-Cada `.app` (macOS) o cada `xstata-*` (Linux) corresponde a una edición.
+**Linux** — los ejecutables viven sueltos en la carpeta de instalación:
+
+```
+/usr/local/stata18/stata-mp     # Stata 18
+/usr/local/stata19/stata-mp     # Stata 19
+/usr/local/statanow/stata-mp    # StataNow
+```
+
+**Windows** — Stata se instala en `C:\Program Files\` y el ejecutable CLI es un `.exe` directamente en esa carpeta:
+
+```
+C:\Program Files\Stata18\StataMP-64.exe    # Stata 18 MP (64-bit)
+C:\Program Files\Stata19\StataMP-64.exe    # Stata 19 MP
+C:\Program Files\StataNow\StataMP-64.exe   # StataNow MP
+```
+
+En Windows el binario lleva el sufijo de edición y arquitectura en el nombre (`StataMP-64.exe`, `StataSE-64.exe`, `StataBE-64.exe`). Funciona tanto para abrir la GUI (doble click) como para correr en modo batch desde la terminal (`StataMP-64.exe -b do archivo.do`).
 
 ### Usar el ejecutable CLI desde el terminal
 
-Una vez que sabes dónde está, puedes correr Stata sin abrir la app — exactamente como lo hace un agente de IA.
+Una vez que sabes dónde está, puedes correr Stata sin abrir la app — exactamente como lo hace un agente.
 
-**macOS (StataNow MP, por ejemplo):**
+**macOS:**
 
 ```bash
-# Modo batch: corre un .do file y termina (genera un .log al lado)
 /Applications/StataNow/StataMP.app/Contents/MacOS/stata-mp -b do analisis.do
-
-# Modo consola interactivo (REPL dentro de la terminal)
-/Applications/StataNow/StataMP.app/Contents/MacOS/stata-mp
-
-# Ejecutar un comando único y salir
-/Applications/StataNow/StataMP.app/Contents/MacOS/stata-mp -b -e 'sysuse auto, clear; summarize'
 ```
 
-**Linux (Stata 18 MP):**
+**Linux:**
 
 ```bash
 /usr/local/stata18/stata-mp -b do analisis.do
 ```
 
-Si quieres llamarlo simplemente como `stata-mp` desde cualquier carpeta, agrega un alias a tu shell (`~/.zshrc` o `~/.bashrc`):
+**Windows** (PowerShell o cmd):
 
-```bash
-alias stata-mp="/Applications/StataNow/StataMP.app/Contents/MacOS/stata-mp"
+```powershell
+& "C:\Program Files\Stata18\StataMP-64.exe" -b do analisis.do
 ```
 
-> Así es exactamente como un agente de IA ejecuta Stata: invoca el binario CLI con `-b do archivo.do`, lee el `.log` resultante, y te reporta los resultados. Sin esto, el agente no puede correr código Stata por su cuenta.
+El flag `-b` corre en modo batch: ejecuta el `.do`, escribe un `.log` al lado, y termina.
 
 ### Ejemplo listo para probar
 
-En [stata-cli-example/](stata-cli-example/) dejamos un `.do` de prueba ([ejemplo_cli.do](stata-cli-example/ejemplo_cli.do)) que carga el dataset `auto`, hace un `tabulate` y corre una regresión simple. Para ejecutarlo:
+En [stata-cli-example/](stata-cli-example/) dejamos un `.do` de prueba ([ejemplo_cli.do](stata-cli-example/ejemplo_cli.do)) que carga el dataset `auto`, hace un `tabulate` y corre una regresión simple. Para ejecutarlo, pásale al binario CLI la **ruta completa al `.do`** (no necesitas hacer `cd`):
 
 ```bash
-cd workflow/stata-cli-example
-/Applications/StataNow/StataMP.app/Contents/MacOS/stata-mp -b do ejemplo_cli.do
+# macOS
+/Applications/StataNow/StataMP.app/Contents/MacOS/stata-mp -b do /ruta/al/repo/workflow/stata-cli-example/ejemplo_cli.do
+
+# Linux
+/usr/local/stata18/stata-mp -b do /ruta/al/repo/workflow/stata-cli-example/ejemplo_cli.do
 ```
 
-Al terminar verás un archivo [ejemplo_cli.log](stata-cli-example/ejemplo_cli.log) con todo el output (tabla de frecuencias, summary y la tabla de regresión). Si ese log aparece y termina con `Listo: ejecución terminada OK.`, tu instalación de Stata está correctamente accesible desde la terminal y los agentes podrán usarla.
+```powershell
+# Windows
+& "C:\Program Files\Stata18\StataMP-64.exe" -b do "C:\ruta\al\repo\workflow\stata-cli-example\ejemplo_cli.do"
+```
+
+Al terminar verás un archivo [ejemplo_cli.log](stata-cli-example/ejemplo_cli.log) junto al `.do` (Stata lo deja en el directorio del archivo, no en el cwd) con todo el output (tabla de frecuencias, summary y tabla de regresión). Si ese log aparece y termina con `Listo: ejecución terminada OK.`, tu instalación de Stata está correctamente accesible desde la terminal y los agentes podrán usarla.
 
 ### Documentar la ruta en `CLAUDE.md` (o equivalente)
 
@@ -652,4 +648,57 @@ Pega esto dentro del array `[ ... ]` del archivo `keybindings.json`:
 6. Siguientes `Shift+Enter` reutilizan la misma sesión: las variables y datasets quedan en memoria.
 
 > Si la primera vez no aparece **Stata (nbstata)** en la lista de kernels, revisa que `nbstata` quedó instalado (sección 6) y reinicia el editor.
+
+---
+
+## 8. Tips prácticos para trabajar con agentes
+
+Algunos consejos sueltos que ayudan cuando los agentes hacen tareas largas (corridas pesadas, scraping, varias iteraciones de código). No son obligatorios, pero evitan dolores de cabeza típicos.
+
+### Evita que el sistema se suspenda mientras el agente trabaja
+
+Si el agente está corriendo una tarea larga (un loop largo en Stata, instalación de paquetes, un análisis pesado, varias llamadas seguidas a la IA), el sistema puede entrar en **suspensión** o apagar la pantalla y, dependiendo de la configuración, **pausar procesos** o **cortar la red**. Resultado: vuelves después de un rato y la sesión está colgada o el agente "perdió" el hilo.
+
+La forma más cómoda de prevenirlo es mantener el sistema "despierto" desde el terminal mientras dura la tarea:
+
+**macOS — `caffeinate`** (viene incluido en el sistema, no hay que instalar nada):
+
+```bash
+# Mantiene el sistema despierto indefinidamente (Ctrl+C para salir)
+caffeinate -dimsu
+
+# O por un tiempo fijo, p. ej. 2 horas (7200 segundos)
+caffeinate -dimsu -t 7200
+```
+
+Banderas útiles: `-d` (no apaga la pantalla), `-i` (no suspende el sistema), `-m` (no duerme el disco), `-s` (mantiene despierto incluso con tapa cerrada en AC), `-u` (simula actividad de usuario).
+
+**Windows — loop en PowerShell** (no requiere instalar nada):
+
+Deja esta línea corriendo en una pestaña del terminal integrado mientras el agente trabaja. Simula una pulsación de tecla "fantasma" cada cierto tiempo, lo que evita que Windows entre en suspensión o active el bloqueo de pantalla:
+
+```powershell
+$wsh = New-Object -ComObject WScript.Shell; while ($true) { $wsh.SendKeys('{SCROLLLOCK}{SCROLLLOCK}'); Start-Sleep -Seconds 240 }
+```
+
+Manda dos pulsaciones seguidas de `Scroll Lock` cada 4 minutos — se cancelan entre sí (no deja el `Scroll Lock` activado), pero cuentan como actividad de usuario para Windows. Para detenerlo: `Ctrl+C` en esa pestaña.
+
+> Si prefieres GUI, **PowerToys Awake** (oficial de Microsoft) hace lo mismo desde la bandeja del sistema.
+
+**Linux — alternativas:**
+
+- `systemd-inhibit --what=idle:sleep sleep infinity` (corre hasta que lo cancelas).
+- `caffeine` (paquete en muchas distros) o `xdg-screensaver reset` en un loop.
+
+> Recomendación: déjalo corriendo en una **pestaña separada del terminal integrado** del editor, así no se te olvida cancelarlo cuando termines.
+
+### Otros tips útiles
+
+- **Cierra otras apps pesadas** mientras el agente trabaja (Chrome con 80 tabs, Docker, máquinas virtuales). Stata y los kernels de Jupyter pueden usar bastante RAM en datasets grandes; competir por memoria hace que todo se sienta lento y aumenta el riesgo de que el agente se demore o falle.
+- **Usa el terminal integrado del editor**, no uno externo. Así el agente ve el mismo `cwd`, las mismas variables de entorno y puede leer la salida de comandos que lance.
+- **Guarda con frecuencia** (`Cmd+S` / `Ctrl+S`) o activa **Auto Save** (`File > Auto Save`). Si el agente edita un archivo que tú tienes abierto sin guardar, puede haber conflictos.
+- **Mantén `CLAUDE.md` (o equivalente) al día** con rutas, convenciones y datos del proyecto. Cada cosa que documentes ahí es una cosa menos que el agente tiene que redescubrir en cada conversación.
+- **Revisa los diffs antes de aceptar** cambios masivos. Es rápido en VS Code/Cursor con el Source Control panel (`Ctrl+Shift+G`) — útil sobre todo cuando el agente toca varios archivos a la vez.
+- **No dejes credenciales en archivos versionados**. Si el agente te sugiere pegar tokens o passwords en código o `CLAUDE.md`, redirígelo a un `.env` (y agrégalo a `.gitignore`).
+- **Si el agente se "atasca"**, a veces basta con cerrarlo y abrir una conversación nueva. Las sesiones muy largas acumulan contexto y a veces conviene reiniciar con un prompt limpio que cargue solo `CLAUDE.md` y los archivos relevantes.
 
