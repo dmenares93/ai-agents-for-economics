@@ -356,52 +356,57 @@ Cuando le pides a un agente "corre este `.do` y resúmeme la regresión", lo que
 - Si no se la indicas, el agente la va a redescubrir en cada conversación nueva — explorando `/Applications`, `/usr/local`, corriendo `which stata`, etc. — gastando contexto y tiempo.
 - Documentar la ruta una sola vez (en `CLAUDE.md`/`AGENTS.md`) le permite al agente saltar directo a ejecutar, y a ti tener claro qué edición está usando (MP vs SE vs BE) y, por lo tanto, qué rendimiento esperar.
 
-### Ediciones de Stata (MP, SE, BE)
+### La carpeta de Stata y sus archivos
 
-Stata se distribuye en **tres ediciones**, que cambian cuántos núcleos y cuánta memoria puede usar. Es útil saber cuál tienes, porque define el rendimiento y aparece en el nombre del binario CLI:
-
-| Edición | Binario CLI | Qué significa |
-|---|---|---|
-| **MP** (Multi-Processor) | `stata-mp` | Paraleliza cálculos en varios núcleos del CPU. La más rápida — la diferencia frente a SE/BE es enorme en regresiones, bootstrap, simulaciones. |
-| **SE** (Standard Edition) | `stata-se` | Más capacidad por dataset que BE, pero *single-threaded*. |
-| **BE** (Basic Edition) | `stata` | Versión básica, un solo core, límite menor de variables y observaciones. |
-
-> Si tienes **MP** disponible, úsala. `-mp` significa *Multi-Processor* (no "multi parallel" — el término oficial de StataCorp es Multi-Processor).
-
-Además, para cada edición se instala un binario **GUI** (la app gráfica con menús y Do-file Editor — `StataMP` / `xstata-mp`) y un binario **CLI** (terminal, sin interfaz — `stata-mp`). **El que usan los agentes es siempre el CLI.**
-
-### Rutas del ejecutable en las últimas versiones
-
-Estas son las rutas típicas para **Stata 18, 19 y StataNow** (las versiones que verás en la mayoría de máquinas hoy). Cambia `StataMP` por `StataSE` / `StataBE` si tu edición es otra.
-
-**macOS** — Stata se instala como bundle `.app` en `/Applications/`. El ejecutable CLI vive **dentro del bundle**:
+Cuando instalas Stata, **todos los ejecutables quedan juntos en una misma carpeta**. La ruta de esa carpeta cambia según el sistema operativo (la vemos más abajo), pero su contenido es siempre parecido. Si la abres, verás algo así:
 
 ```
-/Applications/Stata/StataMP.app/Contents/MacOS/stata-mp           # Stata clásico (18, 19)
-/Applications/StataNow/StataMP.app/Contents/MacOS/stata-mp         # StataNow
+StataMP            ← app gráfica (GUI) — edición MP
+StataSE            ← app gráfica (GUI) — edición SE
+StataBE            ← app gráfica (GUI) — edición BE
+stata-mp           ← binario de terminal (CLI) — edición MP
+stata-se           ← binario de terminal (CLI) — edición SE
+stata              ← binario de terminal (CLI) — edición BE
+...
+```
+
+Dos cosas que conviene leer ahí:
+
+- **GUI vs CLI**: los archivos con nombre "bonito" (`StataMP`, `xstata-mp`, `StataMP-64.exe`) son los que abren la **app gráfica** con menús, ventanas y Do-file Editor. Los que están en minúsculas (`stata-mp`, `stata-se`, `stata`) son los **binarios de terminal** — sin interfaz, pensados para correr `.do` files desde la línea de comandos.
+- **El sufijo es la edición**: después del `-` viene la edición de Stata — `-mp` (Multi-Processor, paraleliza en varios núcleos, la más rápida), `-se` (Standard Edition, un solo núcleo, más capacidad por dataset que BE) o sin sufijo / `BE` (Basic Edition, la versión básica).
+
+> Si tienes **MP** disponible, úsala. La diferencia frente a SE/BE es enorme en regresiones, bootstrap y simulaciones.
+
+**El que usan los agentes de IA es siempre el binario de terminal** (CLI). El agente abre el terminal, lo invoca con `stata-mp -b do archivo.do`, espera a que termine, lee el `.log` resultante y te reporta el output. Nunca abre la GUI.
+
+### Dónde está la carpeta según el SO
+
+**macOS** — Stata se instala como bundle `.app` en `/Applications/`, y los ejecutables viven **dentro del bundle**, en `Contents/MacOS/`:
+
+```
+/Applications/Stata/StataMP.app/Contents/MacOS/         # Stata clásico (18, 19)
+/Applications/StataNow/StataMP.app/Contents/MacOS/      # StataNow
 ```
 
 **Linux** — los ejecutables viven sueltos en la carpeta de instalación:
 
 ```
-/usr/local/stata18/stata-mp     # Stata 18
-/usr/local/stata19/stata-mp     # Stata 19
-/usr/local/statanow/stata-mp    # StataNow
+/usr/local/stata18/      # Stata 18
+/usr/local/stata19/      # Stata 19
+/usr/local/statanow/     # StataNow
 ```
 
-**Windows** — Stata se instala en `C:\Program Files\` y el ejecutable CLI es un `.exe` directamente en esa carpeta:
+**Windows** — Stata se instala en `C:\Program Files\` y los ejecutables son `.exe` directamente en esa carpeta. El binario CLI lleva el sufijo de edición y arquitectura en el nombre (`StataMP-64.exe`, `StataSE-64.exe`, `StataBE-64.exe`):
 
 ```
-C:\Program Files\Stata18\StataMP-64.exe    # Stata 18 MP (64-bit)
-C:\Program Files\Stata19\StataMP-64.exe    # Stata 19 MP
-C:\Program Files\StataNow\StataMP-64.exe   # StataNow MP
+C:\Program Files\Stata18\      # Stata 18
+C:\Program Files\Stata19\      # Stata 19
+C:\Program Files\StataNow\     # StataNow
 ```
 
-En Windows el binario lleva el sufijo de edición y arquitectura en el nombre (`StataMP-64.exe`, `StataSE-64.exe`, `StataBE-64.exe`). Funciona tanto para abrir la GUI (doble click) como para correr en modo batch desde la terminal (`StataMP-64.exe -b do archivo.do`).
+### Ejecutar un `.do` desde el terminal
 
-### Usar el ejecutable CLI desde el terminal
-
-Una vez que sabes dónde está, puedes correr Stata sin abrir la app — exactamente como lo hace un agente.
+Una vez que sabes dónde está el binario CLI, puedes correr un `.do` sin abrir la app — exactamente como lo hace un agente. El flag `-b` corre en modo batch: ejecuta el `.do`, escribe un `.log` al lado, y termina.
 
 **macOS:**
 
@@ -420,8 +425,6 @@ Una vez que sabes dónde está, puedes correr Stata sin abrir la app — exactam
 ```powershell
 & "C:\Program Files\Stata18\StataMP-64.exe" -b do analisis.do
 ```
-
-El flag `-b` corre en modo batch: ejecuta el `.do`, escribe un `.log` al lado, y termina.
 
 ### Ejemplo listo para probar
 
